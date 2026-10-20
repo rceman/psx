@@ -25,6 +25,17 @@ The logger is initialized before the `game.js` ES module, so it also reports
 when the Three.js CDN cannot load. The report intentionally omits query strings
 and does not upload anything.
 
+A separate **VISIBILITY TEST** button disables fog and replaces scene materials
+with bright untextured colors, retaining the same geometry and camera. It helps
+distinguish PSX shader/lighting problems from missing objects. Tap **RESTORE
+PSX VIEW** to return to the textured view.
+
+The scene camera permanently retains the screenshot's 1206:847 aspect ratio.
+On portrait displays, the 3D image is letterboxed to prevent horizontal
+cropping instead of distorting the scene. Debug v2 logs **actual 3D scene**
+draw calls/triangles separately from the final 2-triangle post-processing pass,
+plus a 3×3 brightness distribution of the off-screen render target.
+
 On iOS Safari, tap **COPY DEBUG LOG** and paste the result into a bug report or
 the ChatGPT conversation. If the Clipboard API is unavailable, the app presents
 a selectable text report as a fallback. Renderer statistics and the 8×8 center
