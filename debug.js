@@ -73,6 +73,7 @@
         hidden: document.hidden,
         canvas: canvas ? {width: canvas.width, height: canvas.height} : null
       },
+      build: '5-20261020',
       sceneModuleLoaded: !!runtime,
       firstFrameRendered: renderReady,
       recentPixelProbe: lastProbe
@@ -123,7 +124,7 @@
     const lines = entries.map(e => '[' + e.time + ' +' + e.elapsedMs + 'ms] ' +
       e.level + ' ' + e.message);
     return [
-      'HOLLOW STREET / PSX DEBUG REPORT v2',
+      'HOLLOW STREET / PSX DEBUG REPORT v3 · BUILD 5',
       '--- STATE ---',
       state,
       '--- LOG (' + lines.length + ' most recent entries) ---',
