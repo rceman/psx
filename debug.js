@@ -80,7 +80,7 @@
     if (runtime) {
       const {renderer, scene, camera, target, settings} = runtime;
       report.renderer = safe(() => ({
-        drawingBuffer: renderer.getDrawingBufferSize?.({x: 0, y: 0}),
+        drawingBuffer: [renderer.domElement.width, renderer.domElement.height],
         calls: renderer.info.render.calls,
         triangles: renderer.info.render.triangles,
         points: renderer.info.render.points,
