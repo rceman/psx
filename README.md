@@ -38,7 +38,9 @@ Main facade plane: z≈−3.85; door center x≈2; character at (x=2.57, z=2.02)
 - [Silent Hill PC port asset and model extraction guide](https://github.com/SlickAmogus/silent-hill-decomp/blob/pc-port/pc_port/docs/Modding_And_Extraction_Guide.md).
 - [Fan-made Harry Mason PS1-style FBX on Sketchfab](https://sketchfab.com/3d-models/harry-mason-f7d35fa083c645c7a8e0404b57c824c1), CC BY; **not incorporated here**.
 
-The actual game models may exist in the original game data, but downloading game files or determining the matching in-game map and textures is a separate asset recovery task. This repository does not represent the procedural placeholder as an original model.
+The actual game models may exist in the original game data, but obtaining the game files, determining the matching map and extracting its textures is a separate asset recovery task. This repository does not represent the procedural placeholder as an original model.
+
+**Better route for exact geometry:** load your own game copy in DuckStation and use [DuckStation 3D Screenshot](https://github.com/scurest/duckstation-3D-Screenshot) to capture the **same frame** as OBJ + textures. See [the documented model/scene capture workflow](https://archive.vg-resource.com/archive/index.php/thread-43171.html): disable culling, capture front/back, PGXP, then import OBJ in Blender, fix transforms and export glTF/GLB. This provides the exact visible street, columns, wall and wagon instead of the current handmade substitutes. Preserve exported UVs and original material IDs; after import, create a character/architecture UV-specific layout rather than forcing the generic 16-cell atlas onto extracted meshes. Coordinate/image alignment still requires verification.
 
 ## Texture workflow
 
