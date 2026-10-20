@@ -16,6 +16,26 @@
 - The `EXPORT 1024px BASE ATLAS` control saves the original procedural base, helpful as an additional input for texture generation.
 - Place an artist-generated `assets/atlas.png` in the repo and reload the page. All 16 generated material textures are replaced from the corresponding atlas cells automatically. No shader/material code edits required.
 
+## Diagnostics (iPhone Safari / desktop)
+
+A permanently visible **COPY DEBUG LOG** button copies the latest initialization,
+JavaScript, asset load, Three.js console warnings/errors, shader compile/link failures,
+WebGL context events, canvas size, renderer statistics and a center pixel probe.
+The logger is initialized before the `game.js` ES module, so it also reports
+when the Three.js CDN cannot load. The report intentionally omits query strings
+and does not upload anything.
+
+On iOS Safari, tap **COPY DEBUG LOG** and paste the result into a bug report or
+the ChatGPT conversation. If the Clipboard API is unavailable, the app presents
+a selectable text report as a fallback. Renderer statistics and the 8×8 center
+pixel probe are snapshots, not a guarantee that the frame visually matches
+the target reference.
+
+To develop and visually verify, run a local HTTP server and inspect the
+WebGL canvas with a real browser (Playwright is useful for repeatable desktop
+screenshots). The published site cannot be assumed healthy solely from CI
+syntax checks.
+
 ## Scene placement / reference calibration
 
 The source reference is a ~1206 × 847 screenshot. Approximate visual targets:
