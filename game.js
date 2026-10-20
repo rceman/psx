@@ -334,6 +334,10 @@ function resize(){
 }
 window.addEventListener('resize',resize);
 resize();
+window.__psxDebug?.setRuntime({
+ renderer, scene, camera, settings:setting, target:()=>target
+});
+let debugFrame=0;
 const key=new Set();let follow=false,turn=0,dragging=false,lastX=0;
 const keepKey=e=>['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code);
 window.addEventListener('keydown',e=>{
@@ -499,6 +503,11 @@ function animate(){
  renderer.render(scene,camera);
  renderer.setRenderTarget(null);
  renderer.render(postScene,postCam);
+ debugFrame++;
+ if (debugFrame === 12 || debugFrame % 420 === 0) {
+   window.__psxDebug?.probe(renderer, target);
+ }
+ window.__psxDebug?.markReady();
  if (!window.__psxReady) {
    window.__psxReady = true;
    $('status').innerHTML='<span class="status-dot"></span> SCENE ACTIVE // REFERENCE CAMERA';
