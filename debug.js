@@ -6,7 +6,7 @@
   const started = performance.now();
   const original = Object.fromEntries(['log', 'info', 'warn', 'error', 'debug']
     .map(name => [name, console[name].bind(console)]));
-  let runtime = null, renderReady = false, lastProbe = null, visibilityTest = false;
+  let runtime = null, renderReady = false, lastProbe = null, lastScreenProbe = null, visibilityTest = false;
 
   function stringify(value) {
     if (value instanceof Error) return (value.stack || value.message || String(value)).slice(0, MAX_VALUE);
@@ -76,7 +76,8 @@
       build: '5-20261020',
       sceneModuleLoaded: !!runtime,
       firstFrameRendered: renderReady,
-      recentPixelProbe: lastProbe
+      recentPixelProbe: lastProbe,
+      screenPixelProbe: lastScreenProbe
     };
     if (runtime) {
       const {renderer, scene, camera, target, settings} = runtime;
@@ -135,6 +136,21 @@
 
   function probe(r, sceneTarget) {
     if (!r || !sceneTarget) return;
+    // Called immediately after the final frame, before the browser swaps buffers.
+    // Measures actual presented brightness, not just the unprocessed PS1 render target.
+    try {
+      const gl = r.getContext();
+      const px = new Uint8Array(8*8*4);
+      const w = gl.drawingBufferWidth, h = gl.drawingBufferHeight;
+      const x = Math.max(0, Math.floor(w/2)-4);
+      const y = Math.max(0, Math.floor(h/2)-4);
+      gl.readPixels(x,y,8,8,gl.RGBA,gl.UNSIGNED_BYTE,px);
+      let brightness=0;
+      for(let i=0;i<px.length;i+=4)
+        brightness += (px[i]+px[i+1]+px[i+2])/3;
+      lastScreenProbe = {center8x8Mean:Math.round(brightness/64),size:[w,h]};
+      log('display-probe',lastScreenProbe);
+    }catch(e){log('display-probe-failed',String(e.message||e));}
     try {
       const w = sceneTarget.width, h = sceneTarget.height;
       const pixels = new Uint8Array(4 * 8 * 8);
