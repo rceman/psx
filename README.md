@@ -16,6 +16,25 @@
 - The `EXPORT 1024px BASE ATLAS` control saves the original procedural base, helpful as an additional input for texture generation.
 - Place an artist-generated `assets/atlas.png` in the repo and reload the page. All 16 generated material textures are replaced from the corresponding atlas cells automatically. No shader/material code edits required.
 
+## Build 5: visibility and brightness on mobile
+
+Start with [the fresh preview URL](https://rceman.github.io/psx/preview-v5.html).
+It has a new HTML filename and versioned JS/CSS requests to avoid older iPhone
+Safari/GitHub Pages caches. Verify that the HUD says **BUILD 5** and that the
+copied report says **DEBUG REPORT v3**. Earlier reports with a 146×240 render
+target are running the previous mobile-aspect build; Build 5 renders at approximately
+342×240 with the reference's original 1206:847 framing.
+
+The default **Scene brightness** is 170% (range: 80–260%) and is saved
+locally. The scene also has stronger, non-directional nighttime fill light,
+a lower fog density and a moderately brighter fog color. The PNG texture atlas
+and camera geometry are unchanged. Use **Visibility Test** only to distinguish
+broken geometry from problems with shaders/lighting, not as the final look.
+
+The debug log now includes both the raw scene framebuffer brightness and a
+sample of the *presented* post-processed pixels. Adjusting Scene brightness
+should raise the presented reading without changing raw target brightness.
+
 ## Diagnostics (iPhone Safari / desktop)
 
 A permanently visible **COPY DEBUG LOG** button copies the latest initialization,
