@@ -32,3 +32,14 @@
   #debug-visibility{right:157px;bottom:calc(213px + env(safe-area-inset-bottom));
     min-height:39px}
 }
+
+/* Build 5: keep the reference frame readable on portrait devices. */
+@media(max-width:800px),(pointer:coarse){
+  .header{top:12px;left:13px}
+  .header h1{font-size:21px;line-height:1.0;letter-spacing:.04em;margin:5px 0}
+  .header .eyebrow{font-size:8px;letter-spacing:.11em}
+  .header .subline{display:none}
+  .panel{top:77px;right:12px;width:min(192px,48vw)}
+  #debug-visibility{right:15px;bottom:calc(265px + env(safe-area-inset-bottom));min-height:38px}
+  #debug-copy{right:15px;bottom:calc(218px + env(safe-area-inset-bottom));min-height:38px}
+}
