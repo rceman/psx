@@ -1,5 +1,6 @@
 name: Validate static PSX demo
 on:
+  workflow_dispatch:
   push:
     branches: [gh-pages]
   pull_request:
@@ -25,7 +26,33 @@ jobs:
           test -f style.css
           test -f game.js
           test -f debug.js
+          test -f preview-v5.html
+          test -f scripts/webgl-smoke.mjs
           test -f assets/atlas.png
           test -f assets/atlas-layout.json
           test -f assets/UV_ATLAS_DRAFT.svg
           node -e "const a=require('./assets/atlas-layout.json');if(a.tiles.length!==16 || a.width!==1024 || a.height!==1024)process.exit(1)"
+
+  webgl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser automation
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Serve static scene
+        run: |
+          python3 -m http.server 8000 --bind 127.0.0.1 > /tmp/psx-http.log 2>&1 &
+          sleep 2
+      - name: Verify WebGL and capture desktop/mobile frames
+        run: node scripts/webgl-smoke.mjs
+      - name: Upload visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: psx-webgl-browser-smoke
+          path: artifacts/
+          if-no-files-found: warn
