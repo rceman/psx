@@ -1,9 +1,9 @@
 # PSX / HOLLOW STREET — CRT Atmosphere V1
-**Status:** APPROVED FOR IMPLEMENTATION AS A PROPOSAL; no implementation yet  
+**Status:** READY FOR AGENT HANDOFF; specification only, no implementation yet  
 **Work type:** Renderer architecture + measurable visual-quality experiment  
 **Target:** Web / Three.js / WebGL2, especially iPhone Safari and desktop Chrome  
-**Source:** \`rceman/psx\`, branch \`gh-pages\`, inspected 2026-10-20  
-**Implementation branch:** create \`feature/crt-atmosphere-v1\` FROM \`spec/crt-atmosphere-v1\`  
+**Source:** `rceman/psx`, branch `gh-pages`, inspected 2026-10-20  
+**Implementation branch:** create `feature/crt-atmosphere-v1` FROM `spec/crt-atmosphere-v1`  
 **Scope:** reference-scene lighting, rendering/postprocess pipeline, presets, UI, diagnostics, tests, documentation  
 **Do not alter:** original scene identity/composition, production texture atlas layout, movement/gameplay, underlying engine
 
@@ -26,25 +26,25 @@ Success is judged against **the same reference camera, same textures and same sc
 
 ## 1. Current repo audit (facts, not assumptions)
 
-The inspected \`gh-pages\` baseline currently contains:
-- \`game.js\` (~606 lines): scene generation, camera, input, movement, atlas slicing, \`MeshLambertMaterial.onBeforeCompile\` PSX effects, rendering, settings.
-- \`index.html\`, \`style.css\`, \`preview-v5.html\`: graphics sliders; fixed reference camera composition on a letterboxed portrait display.
-- \`debug.js\`: pre-module console/error capture, COPY DEBUG LOG, VISIBILITY TEST, raw center/grid probes and display probe, WebGL/scene statistics.
-- \`assets/atlas.png\`, \`assets/atlas-layout.json\`: 4×4 texture atlas, 16 cells. Uploaded image is generated and may not be exactly 1024×1024; runtime slices using naturalWidth/4 and naturalHeight/4 into 256² material canvases.
-- \`scripts/webgl-smoke.mjs\`, \`.github/workflows/validate.yml\`: current browser-smoke infrastructure, but previous successful real-browser tests are **not established**. Audit and make CI truly reliable.
+The inspected `gh-pages` baseline currently contains:
+- `game.js` (~606 lines): scene generation, camera, input, movement, atlas slicing, `MeshLambertMaterial.onBeforeCompile` PSX effects, rendering, settings.
+- `index.html`, `style.css`, `preview-v5.html`: graphics sliders; fixed reference camera composition on a letterboxed portrait display.
+- `debug.js`: pre-module console/error capture, COPY DEBUG LOG, VISIBILITY TEST, raw center/grid probes and display probe, WebGL/scene statistics.
+- `assets/atlas.png`, `assets/atlas-layout.json`: 4×4 texture atlas, 16 cells. Uploaded image is generated and may not be exactly 1024×1024; runtime slices using naturalWidth/4 and naturalHeight/4 into 256² material canvases.
+- `scripts/webgl-smoke.mjs`, `.github/workflows/validate.yml`: current browser-smoke infrastructure, but previous successful real-browser tests are **not established**. Audit and make CI truly reliable.
 
 Observed baseline pipeline:
-1. Mesh lighting/materials + exponential distance fog into low-resolution \`WebGLRenderTarget\` (240 high × ~342 wide, aspect 1206/847).
-2. A fullscreen \`ShaderMaterial\` applies exponential brightening, noise, Bayer dithering, RGB555-like quantization and vignette.
+1. Mesh lighting/materials + exponential distance fog into low-resolution `WebGLRenderTarget` (240 high × ~342 wide, aspect 1206/847).
+2. A fullscreen `ShaderMaterial` applies exponential brightening, noise, Bayer dithering, RGB555-like quantization and vignette.
 3. Last pass nearest-neighbor presentation in a centered, letterboxed region.
-4. \`renderer.outputColorSpace = THREE.SRGBColorSpace\`, \`renderer.toneMapping = THREE.NoToneMapping\`; scene RT texture marked sRGB.
+4. `renderer.outputColorSpace = THREE.SRGBColorSpace`, `renderer.toneMapping = THREE.NoToneMapping`; scene RT texture marked sRGB.
 
 Baseline gotchas to address:
 - Current 170% exposure is a **visibility workaround**, not CRT grading. The postprocess can lift blacks indiscriminately and wash textures out.
-- Current fog is \`FogExp2\` with one density/color; height fog is absent. If actual depth data is unavailable, do NOT fake height fog with a 2D vertical screen gradient.
+- Current fog is `FogExp2` with one density/color; height fog is absent. If actual depth data is unavailable, do NOT fake height fog with a 2D vertical screen gradient.
 - Shadowed areas can become illegible on a phone. Target structured contrast rather than blanket brightening.
-- Three.js color space conversions may differ for custom \`ShaderMaterial\`; prove whether each stage expects linear or sRGB and **encode to display sRGB exactly once**. Do not introduce double gamma/exposure.
-- In prior reports, \`renderer.info.render.calls=1,triangles=2\` measured postprocessing alone. Use saved scene-pass stats and evidence.
+- Three.js color space conversions may differ for custom `ShaderMaterial`; prove whether each stage expects linear or sRGB and **encode to display sRGB exactly once**. Do not introduce double gamma/exposure.
+- In prior reports, `renderer.info.render.calls=1,triangles=2` measured postprocessing alone. Use saved scene-pass stats and evidence.
 - Earlier iOS Safari reports showed 146×240 and DEBUG v1 due to old cached code. Current working target is ~342×240 and DEBUG v3/Build 5. Versioned resources and build ID in logs are mandatory.
 - Scene/atlas and geometry may still differ substantially from the reference screenshot: **do not disguise this with CRT distortion**. Mark geometry drift as separate issue.
 
@@ -53,22 +53,22 @@ Before work: record initial git SHA, state, visible screenshots and actual brows
 ## 2. Required deliverables
 
 1. **Three switchable modes (same world geometry/camera):**
-   - \`DEBUG_VISIBLE\`: high readability, neutral non-CRT output, fog configurable, no CRT mask/bloom, basic debug controls. **Preserve separate "Visibility Test" wireframe/bright-material switch** as diagnostic independent of preset.
-   - \`PS1_LCD\`: PS1 vertex snap/affine UV/low-res/RGB555+dither; no analog CRT display effects.
-   - \`CRT_ATMOSPHERE\`: same PS1 rasterization as \`PS1_LCD\` + carefully graded contrast, CRT-inspired softness, localized bloom/halation, subtle scanline/mask and optional minimal channel bleed. Main showcase mode.
+   - `DEBUG_VISIBLE`: high readability, neutral non-CRT output, fog configurable, no CRT mask/bloom, basic debug controls. **Preserve separate "Visibility Test" wireframe/bright-material switch** as diagnostic independent of preset.
+   - `PS1_LCD`: PS1 vertex snap/affine UV/low-res/RGB555+dither; no analog CRT display effects.
+   - `CRT_ATMOSPHERE`: same PS1 rasterization as `PS1_LCD` + carefully graded contrast, CRT-inspired softness, localized bloom/halation, subtle scanline/mask and optional minimal channel bleed. Main showcase mode.
 2. **A clean scene → tone → analog-display pipeline** with explicit color management, WebGL2 compatibility and no custom engine.
 3. **Distance fog + controlled height contribution** on physically motivated world-space or depth data, not screen Y hack; preserve local lights and silhouettes.
 4. Preset selector + advanced effect controls; sensible mobile defaults, persisted safely and resettable.
 5. Side-by-side (or A/B capture) evidence with locked camera/frame, automatic stats, desktop/mobile screenshots, real iPhone Safari validation.
 6. Repeatable tests + docs + screenshot/log evidence. CI must fail on shader compile/link errors, missing main scene draw calls, broken resource load, broken settings or unreadably black output.
-7. Release-ready PR/branch, without editing \`main\` or deploying to \`gh-pages\` until explicitly approved.
+7. Release-ready PR/branch, without editing `main` or deploying to `gh-pages` until explicitly approved.
 
 ## 3. Renderer architecture and color contract
 
 **Remain on Three.js** (currently CDN-pinned to r180), WebGL2 and the static GH Pages deployment model. Do NOT switch to C++, software rasterization, Godot or Unity.
 
 Organize rendering logic into bounded modules **only if it measurably improves maintainability**; recommended layout (may adapt to current simple static ESM structure):
-\`\`\`
+```
 src/render/
   color.js            # linear/sRGB helpers, pixel-grade contracts
   presets.js          # immutable validated presets + ranges
@@ -76,8 +76,8 @@ src/render/
   fog.js              # parameters and world/depth-aware fog contract
   crt.js              # fullscreen CRT composition uniforms/shaders
   diagnostics.js      # render pass metrics and capture helpers
-\`\`\`
-Retain \`game.js\` as a small scene/bootstrap client once migrated. No mandatory Vite/npm production build; if introducing a build/bundler, justify with measured benefit, ensure GH Pages root remains deployable and lock dependencies. Never silently duplicate two rendering paths.
+```
+Retain `game.js` as a small scene/bootstrap client once migrated. No mandatory Vite/npm production build; if introducing a build/bundler, justify with measured benefit, ensure GH Pages root remains deployable and lock dependencies. Never silently duplicate two rendering paths.
 
 ### Color-space contract
 
@@ -85,13 +85,13 @@ Choose a documented, reproducible working-space path:
 - Sample artist textures as correctly tagged **sRGB** source data.
 - Do lighting, fog mixes, contrast/tone operations and bloom extraction in a **defined linear working space** (unless a specific perceptual operation intentionally runs in display-encoded values, and is explicitly documented).
 - Use either a linear (preferably half-float, if supported) working RT or a supported sRGB RT with a verified decode/encode contract. Have an RGBA8/sRGB-compatible fallback on iOS when float attachments or filtering are unavailable. **Do not assume float color-buffer renderability across devices**.
-- Decide and document exact order and transfer functions; final output must be encoded **once** to the renderer's sRGB display target. For custom shader materials, verify \`colorspace_fragment\` or explicitly equivalent conversion; avoid double conversion through mixed raw and managed shader stages.
+- Decide and document exact order and transfer functions; final output must be encoded **once** to the renderer's sRGB display target. For custom shader materials, verify `colorspace_fragment` or explicitly equivalent conversion; avoid double conversion through mixed raw and managed shader stages.
 - Keep alpha opaque for scene output; letterbox clear must be deterministic.
 - Use static test swatches (black, near-black, 18% mid gray, neutral gray, near-white, colored patches) and assert captured pixel error vs expected ranges across browsers.
 - Count render passes/GPUs resources; dispose replaced FBOs and shaders on resize/mode switching.
 
 **Proposed logical frame graph** (actual pass count may be optimized):
-\`\`\`
+```
  [scene / world materials / lights / PS1 geometry / world-space fog]
                      |
               SceneColor RT
@@ -107,7 +107,7 @@ Choose a documented, reproducible working-space path:
       CRT beam/softness/scanline/mask at physical display scale]
                      |
       [single final sRGB conversion and present]
-\`\`\`
+```
 For correctness, bloom may be extracted **before** final display encoding and **before** CRT mask; RGB555 quantization should reflect PS1 output, not be applied independently to an already-graded modern post-effect. The agent may adjust pass ordering to satisfy these contracts, but must document it with tests and screenshots.
 
 Current vertex snapping and affine texturing MUST remain adjustable (0–100% each), preserve the model/UV pipeline and not be disabled in CRT mode. Camera matrices, fog uniforms, upload/reference overlay and flashlight behavior must remain stable.
@@ -117,7 +117,7 @@ Current vertex snapping and affine texturing MUST remain adjustable (0–100% ea
 Central principle: **do not use a large uniform exposure boost to compensate for low lighting**.
 
 Implement a documented tone/contrast function:
-- Controls: \`exposure\`, \`contrast\`, \`blackPoint\`, \`midtoneLift\`, \`highlightGain\`, \`saturation\`.
+- Controls: `exposure`, `contrast`, `blackPoint`, `midtoneLift`, `highlightGain`, `saturation`.
 - Favor monotonic, continuous mapping with no hue shifts for grayscale patches; clamp only at intentional stages.
 - Expose ability to preserve truly dark region (~0–2% luma) while separating important objects (~5–30% luma) from their immediate background.
 - Avoid crushed shadows: identify pixel contrast around person/door/post/hedge. Keep the black interior darker than the surrounding wall.
@@ -142,13 +142,13 @@ These must be validated in the real scene; do not implement preset numbers as ha
 ## 5. Fog: spatial depth, not gray overlay
 
 Implement fog as part of the scene/world-space render, before CRT display processing. Contract:
-- Distance fog controls: \`nearDistance\`, \`farDistance\` OR \`density\` with clear physical mapping, not multiple conflicting terms.
-- Optional **world-height** response (\`heightBase\`, \`heightFalloff\`, \`heightInfluence\`), using world position in shader or verified depth reconstruction. This should be subtle; disabled by default if correctness/performance cannot be demonstrated.
+- Distance fog controls: `nearDistance`, `farDistance` OR `density` with clear physical mapping, not multiple conflicting terms.
+- Optional **world-height** response (`heightBase`, `heightFalloff`, `heightInfluence`), using world position in shader or verified depth reconstruction. This should be subtle; disabled by default if correctness/performance cannot be demonstrated.
 - In front of player (near): crisp silhouette and texture; midground: gradual material contrast reduction; deep alley: obscured with low-saturation desaturated fog and deep black.
 - Fog hue desaturated green/gray/brown. Initial candidates: #525d55, #5c635a, #63685f; treat as examples, **not a mandate**. Use swatches and reference rather than blindly brightening all distance.
 - Player-mounted flashlight modulates nearby surfaces via lighting; a fog volume glow can be an OPTIONAL specialized effect, not a screen-space cone painted over image.
 - Runtime controls: fog density/distance, height strength, color (limited swatches). Presets may share base fog parameters but debug mode can turn them down.
-- If the pipeline uses \`FogExp2\` unchanged in V1, call the result "distance fog only" and explicitly defer height fog — do not claim it exists. This fallback is acceptable only if its visual depth is demonstrably adequate.
+- If the pipeline uses `FogExp2` unchanged in V1, call the result "distance fog only" and explicitly defer height fog — do not claim it exists. This fallback is acceptable only if its visual depth is demonstrably adequate.
 
 ## 6. CRT display simulation: subtle, technically grounded
 
@@ -181,7 +181,7 @@ Use CRT-Royale and Libretro shader docs as REFERENCES for terminology and effect
 - Prefer luminance texture/scanlines over distinct RGB stripes on low-res phone displays. Do not introduce fake color fringing by default.
 
 ### 6.5 Optional very subtle composite chroma softness
-- \`chromaBleed\` range 0–0.15, default 0–0.03, at most ~fraction of an output texel.
+- `chromaBleed` range 0–0.15, default 0–0.03, at most ~fraction of an output texel.
 - Zero visible colored outlines on the character, and do not encode nostalgic "VHS tracking glitches".
 - No arbitrary random global jitter, no chromatic aberration always on, no fake VHS noise/tape tears.
 
@@ -192,8 +192,8 @@ Use CRT-Royale and Libretro shader docs as REFERENCES for terminology and effect
 - Vignette should not create a black hole at 4:3/1206:847 edges or erase HUD contrast.
 
 ### 6.7 CRT performance tiers
-- \`CRT_FULL\` desktop: all effects configurable, modest bloom and optional mask.
-- \`CRT_LITE\` default mobile: tone response + simple softening + cheap glow + restrained scanlines, mask OFF if unsupported.
+- `CRT_FULL` desktop: all effects configurable, modest bloom and optional mask.
+- `CRT_LITE` default mobile: tone response + simple softening + cheap glow + restrained scanlines, mask OFF if unsupported.
 - Avoid WebGL readPixels every frame; capture pixels on demand or throttled diagnostics.
 - Instrument actual GPU/CPU timings where possible. No forced DPR=3 for WebGL presentation.
 - Choose output target scaling carefully: source 342×240 should not change based on window ratio; display may use DPR 1–2 independently.
@@ -203,14 +203,14 @@ Use CRT-Royale and Libretro shader docs as REFERENCES for terminology and effect
 ## 7. Modes, presets and overrides
 
 Mode selector visible outside advanced settings:
-- \`DEBUG_VISIBLE\` — neutral/non-CRT, high readability, supports VISIBILITY TEST separately.
-- \`PS1_LCD\` — PS1 hardware-style artifacts without simulated CRT display.
-- \`CRT_ATMOSPHERE\` — primary preset, simulates CRT tonal response and analog softness.
+- `DEBUG_VISIBLE` — neutral/non-CRT, high readability, supports VISIBILITY TEST separately.
+- `PS1_LCD` — PS1 hardware-style artifacts without simulated CRT display.
+- `CRT_ATMOSPHERE` — primary preset, simulates CRT tonal response and analog softness.
 
 **Important experimental parity:** world geometry, scene clock/time, character position, input, camera, UV, textures, FOV, PS1 geometry snap, affine warp and source resolution remain identical when toggling between PS1_LCD and CRT_ATMOSPHERE. The **only** intentional differences are CRT display/tone/fog/lighting parameters, logged explicitly. For strict CRT-vs-LCD display comparison, provide **"Lock scene lighting & fog"** toggle (default ON) so only display-processing effects change. DEBUG_VISIBLE may change scene fill/fog with a clear label.
 
 Settings are a **validated data object** with schema/version:
-\`\`\`js
+```js
 {
   schemaVersion: 1,
   mode: "CRT_ATMOSPHERE",
@@ -227,14 +227,14 @@ Settings are a **validated data object** with schema/version:
     scanlines:.08, mask:.0, chromaBleed:.01, vignette:.16, grain:.15
   }
 }
-\`\`\`
+```
 Values are draft engineering defaults; after reference calibration freeze exact v1 values in presets + tests.
 
-- UI uses sensible labels, values, bounded ranges, one-click \`Reset to preset\`, \`Reset all to defaults\`, A/B toggle.
+- UI uses sensible labels, values, bounded ranges, one-click `Reset to preset`, `Reset all to defaults`, A/B toggle.
 - Sliders grouped by Tone, Fog, CRT and PS1; avoid crowding the iPhone viewport. Controls accessible with touch and keyboard, min touch targets ~44 CSS pixels, usable in portrait and landscape.
 - Collapsed graphics settings remains default on mobile. Preset selector stays available without obscuring subject.
-- Persist explicit current mode and overrides in localStorage with namespace \`psx-render-v1\`, safely validate after parse; no huge objects, sensitive data, screenshot URLs, or image blobs persisted.
-- Migrate old \`psx-scene-exposure\` by interpreting it as an explicit user override only if present and valid; do not let stale default 1.7 silently override CRT's new authored profile. Document precedence.
+- Persist explicit current mode and overrides in localStorage with namespace `psx-render-v1`, safely validate after parse; no huge objects, sensitive data, screenshot URLs, or image blobs persisted.
+- Migrate old `psx-scene-exposure` by interpreting it as an explicit user override only if present and valid; do not let stale default 1.7 silently override CRT's new authored profile. Document precedence.
 - Preset changes should **not** recompile all scene material shaders or recreate the player; use uniforms + reuse assets where feasible.
 - Logging: on startup include build ID, mode, pipeline color contract, actual quality tier, reason for fallback, render/present dimensions, real scene draw calls and 3×3 brightness probes.
 
@@ -260,33 +260,33 @@ A composition overlay is already implemented: keep the local reference-image upl
 ## 9. Tests and measurable acceptance criteria
 
 ### 9.1 Non-visual regression, required
-- \`node --check game.js\`, \`node --check debug.js\` plus every new ES module.
+- `node --check game.js`, `node --check debug.js` plus every new ES module.
 - No shader compile/link warnings/errors on Chrome WebGL2 and real iOS Safari. Capture console (including fragment/vertex shader logs).
 - Canvas runs for 60 s and supports mode toggling (A→B→C→A), resize, device orientation, flashlight toggle, walking, map atlas load, reset, VISIBILITY TEST ON/OFF, and screenshot overlay.
 - Postprocessing never resets camera/character position or changes source render aspect.
-- On reference camera, source framebuffer is approximately **342×240** at the 240p setting, aspect \`1206/847\`. Desktop ~1206×847 and iPhone portrait 402×660 use same world image with letterboxes.
+- On reference camera, source framebuffer is approximately **342×240** at the 240p setting, aspect `1206/847`. Desktop ~1206×847 and iPhone portrait 402×660 use same world image with letterboxes.
 - No live module/CDN errors. If Three.js CDN unavailable, debug overlay clearly reports inability to load; never label scene ACTIVE erroneously.
-- \`assets/atlas.png\` loads; changing exposure does not corrupt atlas nor touch \`assets/atlas-layout.json\`.
+- `assets/atlas.png` loads; changing exposure does not corrupt atlas nor touch `assets/atlas-layout.json`.
 - Settings migrate, survive reload, reject invalid localStorage JSON/out-of-range values safely.
 - GPU context lost/recovery is handled or clearly produces recoverable reload path; no silent blank screen.
 
 ### 9.2 Automated screenshot evidence, required
 Create reproducible CI/browser capture for:
 - 1206×847 desktop, 402×660 portrait, ~844×390 landscape.
-- All 3 modes, + CRT_LITE, at fixed \`Date\`/RNG/character/animation camera seed or deterministic freeze frame.
+- All 3 modes, + CRT_LITE, at fixed `Date`/RNG/character/animation camera seed or deterministic freeze frame.
 - Captures: image-only scene (no obstructive HTML UI) **and** a full UI screenshot.
-- Save descriptive files under \`artifacts/crt-v1/\`: \`desktop-ps1-lcd.png\`, \`desktop-crt.png\`, \`desktop-debug.png\`, \`mobile-crt.png\`, \`landscape-crt.png\`, \`comparison.png\`, \`metrics.json\`, \`browser-console.txt\`.
+- Save descriptive files under `artifacts/crt-v1/`: `desktop-ps1-lcd.png`, `desktop-crt.png`, `desktop-debug.png`, `mobile-crt.png`, `landscape-crt.png`, `comparison.png`, `metrics.json`, `browser-console.txt`.
 - Include color swatches showing final encoded sRGB output and missing/doubled gamma test.
-- Programmatically assert \`scenePass.calls>0\`, \`scenePass.triangles>0\`, no WebGL shader errors, correct aspect and reasonable nonuniform scene contrast.
+- Programmatically assert `scenePass.calls>0`, `scenePass.triangles>0`, no WebGL shader errors, correct aspect and reasonable nonuniform scene contrast.
 - Programmatically compare PS1_LCD vs CRT_ATMOSPHERE: same scene/camera, measurable pixel differences and a difference heatmap. Baseline comparison can be assembled with canvas or Python as CI artifact (not required in the runtime).
 - Negative tests: fog=0, grain=0, bloom=0, mask=0, very low and high exposure; no NaNs, flashes, blank frames or runaway GPU memory.
 
 **Metrics report** (record exact region coordinates after matching the reference):
-- Overall and region-specific luminance histogram quantiles \`p05,p50,p95\` in output-encoded [0,255], not just one center-pixel sample.
+- Overall and region-specific luminance histogram quantiles `p05,p50,p95` in output-encoded [0,255], not just one center-pixel sample.
 - Subject silhouette contrast against nearest wall, door panel vs facade, passage vs street, hedge vs sidewalk.
 - Percentage of pixels near black, near-white, and visibly banded.
 - CPU frame median/p95 and optional GPU timer per tested device. Include renderer calls/triangles, RT dimensions, quality mode, and FPS.
-- Set thresholds from measured baseline + human reference calibration. Never use a global \`mean brightness > X\` as the sole visual pass; keep passage dark.
+- Set thresholds from measured baseline + human reference calibration. Never use a global `mean brightness > X` as the sole visual pass; keep passage dark.
 
 ### 9.3 Manual visual acceptance (mandatory)
 At minimum:
@@ -303,14 +303,14 @@ At minimum:
 ### 9.4 Performance/compatibility
 - Three.js WebGL2 on current Safari/iPhone; desktop Chrome baseline.
 - Targets (aspirational unless measured): 60 FPS on desktop, >=30 FPS sustainable on iPhone in CRT_LITE; CRT_FULL should be optional and gracefully downgrade to LITE if it cannot sustain target for several seconds. Avoid flickering automatic oscillation; hysteresis and logging required.
-- Desktop \`CRT_ATMOSPHERE\` ideally adds <=3 ms GPU time vs PS1_LCD on a normal modern GPU; mobile <=5 ms steady postprocess overhead when measurable. Report actual values; if unsupported, label \`GPU timing unavailable\` rather than inventing.
+- Desktop `CRT_ATMOSPHERE` ideally adds <=3 ms GPU time vs PS1_LCD on a normal modern GPU; mobile <=5 ms steady postprocess overhead when measurable. Report actual values; if unsupported, label `GPU timing unavailable` rather than inventing.
 - No WebGL texture/FBO leak after 20 resize/mode cycles; report current texture/program counts after stabilization.
 - No GPU readPixels in regular animation loop (sampling diagnostic infrequently/on demand).
 - Keep JS/static project small, no enormous CRT-Royale shader port or new megabyte runtime dependency.
 
 ## 10. Agent execution plan / gated milestones
 
-Each gate produces a short commit, tests, screenshots and a concise \`AGENT_RESULT.md\` update. Do not work around failed gates silently.
+Each gate produces a short commit, tests, screenshots and a concise `AGENT_RESULT.md` update. Do not work around failed gates silently.
 
 **M0 — Baseline and reproducibility**
 1. Read files listed in §1 and record precise HEAD.
@@ -339,9 +339,9 @@ Each gate produces a short commit, tests, screenshots and a concise \`AGENT_RESU
 
 **M5 — Release / proof**
 1. Run syntax/CI WebGL and capture visual evidence in Chrome, iPhone Safari manual run and performance.
-2. Write \`docs/CRT_ATMOSPHERE_RESULT.md\`: architecture, results, known limits, screenshot index, mode comparison, exact preset numbers and references to tests.
-3. Update README and \`AGENT_RESULT.md\` with changed file list, checks performed, screenshot paths, known defects and final SHAs.
-4. Create PR from implementation branch to \`gh-pages\`. **Do not merge**, update Pages settings or delete \`preview-v5.html\` without approval.
+2. Write `docs/CRT_ATMOSPHERE_RESULT.md`: architecture, results, known limits, screenshot index, mode comparison, exact preset numbers and references to tests.
+3. Update README and `AGENT_RESULT.md` with changed file list, checks performed, screenshot paths, known defects and final SHAs.
+4. Create PR from implementation branch to `gh-pages`. **Do not merge**, update Pages settings or delete `preview-v5.html` without approval.
 
 ## 11. Explicit exclusions & escalation triggers
 
@@ -361,7 +361,7 @@ Escalate to the user before:
 
 ## 12. Required final response from implementer
 
-\`\`\`
+```
 STATUS: MERGE_READY | BLOCKED | PARTIAL
 BASE_BRANCH: gh-pages
 BASE_SHA: <sha>
@@ -377,7 +377,7 @@ MOBILE_SAFARI: <real device verified yes/no + observed result>
 PERFORMANCE: <measured median/p95 or not measured>
 KNOWN_LIMITATIONS: <explicit list>
 USER_REVIEW_NEEDED: <specific screenshots and decisions>
-\`\`\`
+```
 
 Never write "looks exactly like CRT" or "iPhone tested" absent actual evidence. An automated screenshot alone is not user approval.
 
