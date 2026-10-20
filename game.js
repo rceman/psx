@@ -371,6 +371,7 @@ function setVisibilityTest(enabled){
   });
  }else{
   scene.fog=savedFog;
+  scene.fog.density=.072*setting.fog;
   scene.background=savedBackground;
   for(const [obj,material] of originalMaterialByMesh)obj.material=material;
   originalMaterialByMesh.clear();
@@ -409,7 +410,7 @@ for(const [id,field,scale,unit] of [['res','res',1,'p'],['snap','snap',.01,'%'],
   if(id==='res')resize();
   if(id==='snap')snapPower.value=setting.snap;
   if(id==='affine')affinePower.value=setting.affine;
-  if(id==='fog')scene.fog.density=.072*setting.fog;
+  if(id==='fog' && scene.fog)scene.fog.density=.072*setting.fog;
   if(id==='dither')post.uniforms.dither.value=setting.dither;
   if(id==='grain')post.uniforms.grain.value=setting.grain;
  });
