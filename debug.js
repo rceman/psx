@@ -6,7 +6,7 @@
   const started = performance.now();
   const original = Object.fromEntries(['log', 'info', 'warn', 'error', 'debug']
     .map(name => [name, console[name].bind(console)]));
-  let runtime = null, renderReady = false, lastProbe = null;
+  let runtime = null, renderReady = false, lastProbe = null, visibilityTest = false;
 
   function stringify(value) {
     if (value instanceof Error) return (value.stack || value.message || String(value)).slice(0, MAX_VALUE);
@@ -81,9 +81,14 @@
       const {renderer, scene, camera, target, settings} = runtime;
       report.renderer = safe(() => ({
         drawingBuffer: [renderer.domElement.width, renderer.domElement.height],
-        calls: renderer.info.render.calls,
-        triangles: renderer.info.render.triangles,
-        points: renderer.info.render.points,
+        presentationOnly: {
+          calls: renderer.info.render.calls,
+          triangles: renderer.info.render.triangles,
+          points: renderer.info.render.points
+        },
+        scenePass: safe(() => runtime.scenePass?.() ?? 'unavailable'),
+        visibilityTest,
+        presentation: safe(() => runtime.presentation?.() ?? null),
         shaderPrograms: renderer.info.programs?.length ?? null,
         sceneChildren: scene.children.length,
         sceneMeshes: (() => {
@@ -93,6 +98,7 @@
         })(),
         cameraPosition: camera.position.toArray().map(v => Number(v.toFixed(2))),
         cameraFov: camera.fov,
+        cameraAspect: Number(camera.aspect.toFixed(4)),
         renderTarget: target?.() ? [target().width, target().height] : null,
         settings
       }));
@@ -117,7 +123,7 @@
     const lines = entries.map(e => '[' + e.time + ' +' + e.elapsedMs + 'ms] ' +
       e.level + ' ' + e.message);
     return [
-      'HOLLOW STREET / PSX DEBUG REPORT v1',
+      'HOLLOW STREET / PSX DEBUG REPORT v2',
       '--- STATE ---',
       state,
       '--- LOG (' + lines.length + ' most recent entries) ---',
@@ -142,8 +148,27 @@
           max = Math.max(max, value);
         }
       }
-      lastProbe = {sample: '8x8 center RGB (raw framebuffer)',
-        min, max, mean: Math.round(sum / (pixels.length * .75)), size: [w, h]};
+      const grid = [], tiny = new Uint8Array(4 * 4 * 4);
+      for (let iy = 0; iy < 3; iy++) {
+        const row = [];
+        for (let ix = 0; ix < 3; ix++) {
+          const px = Math.min(w - 4, Math.max(0, Math.round((ix + .5) * w / 3 - 2)));
+          const py = Math.min(h - 4, Math.max(0, Math.round((iy + .5) * h / 3 - 2)));
+          r.readRenderTargetPixels(sceneTarget, px, py, 4, 4, tiny);
+          let brightness = 0;
+          for (let k = 0; k < tiny.length; k += 4)
+            brightness += (tiny[k] + tiny[k + 1] + tiny[k + 2]) / 3;
+          row.push(Math.round(brightness / (tiny.length / 4)));
+        }
+        grid.push(row);
+      }
+      const values = grid.flat();
+      lastProbe = {
+        sample: 'center 8x8 and 3x3 grid of 4x4 average RGB brightness',
+        center: {min, max, mean: Math.round(sum / (pixels.length * .75))},
+        gridBrightness: grid, gridContrast: Math.max(...values) - Math.min(...values),
+        size: [w,h]
+      };
       log('gpu-probe', lastProbe);
     } catch (e) { log('gpu-probe-failed', e.message); }
   }
@@ -171,7 +196,25 @@
     note.id = 'debug-feedback';
     note.setAttribute('role', 'status');
     note.setAttribute('aria-live', 'polite');
-    document.body.append(button, note);
+    const test = document.createElement('button');
+    test.type = 'button';
+    test.id = 'debug-visibility';
+    test.textContent = 'VISIBILITY TEST';
+    test.setAttribute('aria-pressed', 'false');
+    test.title = 'Temporarily disable fog and custom material shaders to isolate dark-scene failures';
+    test.addEventListener('click', () => {
+      if (!runtime?.setVisibilityTest) {
+        log('warning', 'Scene not loaded; visibility test unavailable');
+        note.textContent = 'SCENE MODULE NOT READY';
+        return;
+      }
+      visibilityTest = !visibilityTest;
+      runtime.setVisibilityTest(visibilityTest);
+      test.textContent = visibilityTest ? 'RESTORE PSX VIEW' : 'VISIBILITY TEST';
+      test.setAttribute('aria-pressed', String(visibilityTest));
+      log('ui', 'Visibility test', visibilityTest ? 'ON' : 'OFF');
+    });
+    document.body.append(button, test, note);
     const fallback = document.createElement('div');
     fallback.id = 'debug-fallback';
     fallback.hidden = true;
