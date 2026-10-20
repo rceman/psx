@@ -98,7 +98,18 @@ for(let i=0;i<TILE.length;i++){
   t.wrapS=THREE.RepeatWrapping;t.wrapT=THREE.RepeatWrapping;
   tileMap[name]=t;
 }
-window.psxAtlas=atlas; // optional: open devtools and save atlas.toDataURL().
+window.psxAtlas=atlas; // Runtime-generated original 1024px texture fallback.
+const artistAtlas=new Image();
+artistAtlas.onload=()=>{
+  for(let i=0;i<TILE.length;i++){
+    const [name]=TILE[i],t=tileMap[name],cx=t.image.getContext('2d');
+    cx.clearRect(0,0,256,256);
+    cx.drawImage(artistAtlas,(i%4)*256,Math.floor(i/4)*256,256,256,0,0,256,256);
+    t.needsUpdate=true;
+  }
+  console.info('Custom painted texture atlas loaded: assets/atlas.png');
+};
+artistAtlas.src='./assets/atlas.png';
 
 // Custom shader: snap projected vertices to virtual raster; interpolate UV affinely.
 function psx(mat){
@@ -152,7 +163,7 @@ function taper(parent,bottomW,bottomD,topW,topD,h,m,px,py,pz){
  [-topW/2,h,-topD/2],[topW/2,h,-topD/2],[topW/2,h,topD/2],[-topW/2,h,topD/2]
  ];
  const indices=[0,1,5,0,5,4,1,2,6,1,6,5,2,3,7,2,7,6,3,0,4,3,4,7,4,5,6,4,6,7,3,2,1,3,1,0];
- for(const i of indices){v.push(...coords[i]);}
+ for(let i=0;i<indices.length;i+=3){v.push(...coords[indices[i]],...coords[indices[i+2]],...coords[indices[i+1]]);}
  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));
  g.setAttribute('uv',new THREE.Float32BufferAttribute(Array.from({length:v.length/3},(_,i)=>[i%3===1?1:0,(i%3===2)?1:0]).flat(),2));g.computeVertexNormals();
  const mesh=new THREE.Mesh(g,m);mesh.position.set(px,py,pz);parent.add(mesh);return mesh;
@@ -351,6 +362,55 @@ for(const [id,field,scale,unit] of [['res','res',1,'p'],['snap','snap',.01,'%'],
   if(id==='grain')post.uniforms.grain.value=setting.grain;
  });
 }
+// Reference overlay tools. The screenshot stays on the user's device.
+const compareControls=document.createElement('div');
+compareControls.style.cssText='border-top:1px solid #4a574f;padding-top:9px;margin-top:12px;font-size:10px;color:#c7cfc4;';
+const compareText=document.createElement('div');compareText.textContent='REFERENCE MATCH // OPTIONAL';
+compareText.style.cssText='font-weight:bold;color:#dfcfa0;margin-bottom:8px;';
+compareControls.append(compareText);
+const choose=document.createElement('input');
+choose.type='file';choose.accept='image/*';choose.setAttribute('aria-label','Load reference screenshot');
+choose.style.cssText='font:10px monospace;width:100%;max-width:100%;margin:5px 0 9px;';
+compareControls.append(choose);
+const reference=document.createElement('img');
+reference.alt='Local reference for scene alignment';
+reference.style.cssText='pointer-events:none;position:fixed;inset:0;width:100%;height:100%;object-fit:fill;opacity:0;z-index:1;';
+document.body.append(reference);
+let lastObjectURL=null;
+choose.addEventListener('change',()=>{
+ const f=choose.files?.[0];if(!f)return;
+ if(lastObjectURL)URL.revokeObjectURL(lastObjectURL);
+ lastObjectURL=URL.createObjectURL(f);reference.src=lastObjectURL;reference.style.opacity='.5';
+ blend.value='50';blendOutput.textContent='50%';
+});
+const blendLabel=document.createElement('label');
+blendLabel.textContent='Reference opacity';
+const blend=document.createElement('input');blend.type='range';blend.min='0';blend.max='100';blend.value='50';
+const blendOutput=document.createElement('output');blendOutput.textContent='50%';
+blendLabel.append(blendOutput,blend);
+blend.addEventListener('input',()=>{reference.style.opacity=String(+blend.value/100);blendOutput.textContent=blend.value+'%'});
+compareControls.append(blendLabel);
+const fovLabel=document.createElement('label');fovLabel.textContent='Camera FOV';
+const fovSlider=document.createElement('input');fovSlider.type='range';fovSlider.min='32';fovSlider.max='68';fovSlider.value='48';
+const fovOutput=document.createElement('output');fovOutput.textContent='48°';
+fovLabel.append(fovOutput,fovSlider);
+fovSlider.addEventListener('input',()=>{camera.fov=+fovSlider.value;camera.updateProjectionMatrix();fovOutput.textContent=fovSlider.value+'°'});
+compareControls.append(fovLabel);
+for(const [name,vec,axis,min,max] of [
+ ['Camera X',origin,'x',-4,4],['Camera height',origin,'y',1.0,5.0],
+ ['Camera Z',origin,'z',5,14],['Aim X',viewPoint,'x',-4,4],['Aim Y',viewPoint,'y',0,4]
+]){
+ const l=document.createElement('label');l.textContent=name;
+ const s=document.createElement('input');s.type='range';s.min=String(min);s.max=String(max);s.step='.05';s.value=String(vec[axis]);
+ const out=document.createElement('output');out.textContent=Number(vec[axis]).toFixed(2);
+ s.addEventListener('input',()=>{vec[axis]=+s.value;out.textContent=Number(s.value).toFixed(2)});
+ l.append(out,s);compareControls.append(l);
+}
+$('panel-body').append(compareControls);
+const exportBtn=document.createElement('button');exportBtn.textContent='EXPORT 1024px BASE ATLAS';
+exportBtn.style.cssText='width:100%;margin:8px 0;padding:9px;border:1px solid #738478;background:#1a2622;color:#e0e5d8;font:700 10px monospace;cursor:pointer';
+exportBtn.addEventListener('click',()=>{const a=document.createElement('a');a.download='psx-atlas-base.png';a.href=atlas.toDataURL('image/png');a.click()});
+$('panel-body').append(exportBtn);
 const camButton=document.createElement('button');
 camButton.textContent='CAMERA: FRAME';camButton.title='Toggle reference frame or follow camera (C)';
 camButton.style.width='100%';camButton.style.marginTop='9px';
