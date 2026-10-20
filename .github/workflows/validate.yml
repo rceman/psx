@@ -1,0 +1,27 @@
+name: Validate static PSX demo
+on:
+  push:
+    branches: [gh-pages]
+  pull_request:
+    branches: [gh-pages]
+permissions:
+  contents: read
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check JavaScript module syntax
+        run: node --check game.js
+      - name: Check required static files
+        shell: bash
+        run: |
+          test -f index.html
+          test -f style.css
+          test -f game.js
+          test -f assets/atlas-layout.json
+          test -f assets/UV_ATLAS_DRAFT.svg
+          node -e "const a=require('./assets/atlas-layout.json');if(a.tiles.length!==16 || a.width!==1024 || a.height!==1024)process.exit(1)"
