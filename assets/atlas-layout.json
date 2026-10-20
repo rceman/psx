@@ -1,0 +1,255 @@
+{
+  "schema": "psx-scene-texture-atlas-v1",
+  "width": 1024,
+  "height": 1024,
+  "columns": 4,
+  "rows": 4,
+  "tileSize": 256,
+  "origin": "top-left",
+  "coordinateSystem": "pixel",
+  "format": "RGB, opaque",
+  "pixelPolicy": "PS1 gritty low-res texture, no smooth gradients",
+  "important": "This is a material texture atlas, not a fully-unwrapped UV mesh. Tiles are sliced into materials in game.js; replacing one 1024x1024 atlas refreshes all 16 material sources. Geometry-specific unwraps are necessary for directly importing original OBJ/GLB assets.",
+  "tiles": [
+    {
+      "id": "WALL_GREEN",
+      "x": 0,
+      "y": 0,
+      "width": 256,
+      "height": 256,
+      "uvRect": {
+        "u0": 0,
+        "v0": 0.75,
+        "u1": 0.25,
+        "v1": 1
+      },
+      "description": "Weathered dark green plaster; mold, stains, uneven mottled paint",
+      "appliesTo": "wall facade"
+    },
+    {
+      "id": "WALL_LOWER",
+      "x": 256,
+      "y": 0,
+      "width": 256,
+      "height": 256,
+      "uvRect": {
+        "u0": 0.25,
+        "v0": 0.75,
+        "u1": 0.5,
+        "v1": 1
+      },
+      "description": "Dirty desaturated brown-gray render; water damage",
+      "appliesTo": "lower facade and structural posts"
+    },
+    {
+      "id": "ASPHALT",
+      "x": 512,
+      "y": 0,
+      "width": 256,
+      "height": 256,
+      "uvRect": {
+        "u0": 0.5,
+        "v0": 0.75,
+        "u1": 0.75,
+        "v1": 1
+      },
+      "description": "Cold-gray gritty asphalt with fine gravel",
+      "appliesTo": "street and distant ground"
+    },
+    {
+      "id": "SIDEWALK",
+      "x": 768,
+      "y": 0,
+      "width": 256,
+      "height": 256,
+      "uvRect": {
+        "u0": 0.75,
+        "v0": 0.75,
+        "u1": 1,
+        "v1": 1
+      },
+      "description": "Dirty pale concrete with speckled chips",
+      "appliesTo": "raised pedestrian path and threshold"
+    },
+    {
+      "id": "DOOR",
+      "x": 0,
+      "y": 256,
+      "width": 256,
+      "height": 256,
+      "uvRect": {
+        "u0": 0,
+        "v0": 0.5,
+        "u1": 0.25,
+        "v1": 0.75
+      },
+      "description": "Faded cream-gray industrial door with rectangular inset panels",
+      "appliesTo": "main entrance"
+    },
+    {
+      "id": "DOOR_FRAME",
+      "x": 256,
+      "y": 256,
+      "width": 256,
+      "height": 256,
+      "uvRect": {
+        "u0": 0.25,
+        "v0": 0.5,
+        "u1": 0.5,
+        "v1": 0.75
+      },
+      "description": "Charcoal oxidized metal trim",
+      "appliesTo": "doorframe, wall window and fascia"
+    },
+    {
+      "id": "CAR_METAL",
+      "x": 512,
+      "y": 256,
+      "width": 256,
+      "height": 256,
+      "uvRect": {
+        "u0": 0.5,
+        "v0": 0.5,
+        "u1": 0.75,
+        "v1": 0.75
+      },
+      "description": "Gunmetal gray weathered body panels, slight rust and grime",
+      "appliesTo": "station wagon body"
+    },
+    {
+      "id": "CAR_GLASS",
+      "x": 768,
+      "y": 256,
+      "width": 256,
+      "height": 256,
+      "uvRect": {
+        "u0": 0.75,
+        "v0": 0.5,
+        "u1": 1,
+        "v1": 0.75
+      },
+      "description": "Blackened bluish smoked glass with sparse vertical reflections",
+      "appliesTo": "station wagon windows"
+    },
+    {
+      "id": "HEDGE",
+      "x": 0,
+      "y": 512,
+      "width": 256,
+      "height": 256,
+      "uvRect": {
+        "u0": 0,
+        "v0": 0.25,
+        "u1": 0.25,
+        "v1": 0.5
+      },
+      "description": "Near-black green leafy texture, irregular small leaves",
+      "appliesTo": "bush rows"
+    },
+    {
+      "id": "CEILING",
+      "x": 256,
+      "y": 512,
+      "width": 256,
+      "height": 256,
+      "uvRect": {
+        "u0": 0.25,
+        "v0": 0.25,
+        "u1": 0.5,
+        "v1": 0.5
+      },
+      "description": "Smoke-stained porch wood/plaster underside",
+      "appliesTo": "canopy underside"
+    },
+    {
+      "id": "BLACK_GLASS",
+      "x": 512,
+      "y": 512,
+      "width": 256,
+      "height": 256,
+      "uvRect": {
+        "u0": 0.5,
+        "v0": 0.25,
+        "u1": 0.75,
+        "v1": 0.5
+      },
+      "description": "Dark recessed passage and unlit window",
+      "appliesTo": "alley recess, deep shadow"
+    },
+    {
+      "id": "ROOF",
+      "x": 768,
+      "y": 512,
+      "width": 256,
+      "height": 256,
+      "uvRect": {
+        "u0": 0.75,
+        "v0": 0.25,
+        "u1": 1,
+        "v1": 0.5
+      },
+      "description": "Near-black tar and edge fascia",
+      "appliesTo": "porch top, shadows"
+    },
+    {
+      "id": "JEANS",
+      "x": 0,
+      "y": 768,
+      "width": 256,
+      "height": 256,
+      "uvRect": {
+        "u0": 0,
+        "v0": 0,
+        "u1": 0.25,
+        "v1": 0.25
+      },
+      "description": "Dark desaturated slate denim weave",
+      "appliesTo": "trousers"
+    },
+    {
+      "id": "JACKET",
+      "x": 256,
+      "y": 768,
+      "width": 256,
+      "height": 256,
+      "uvRect": {
+        "u0": 0.25,
+        "v0": 0,
+        "u1": 0.5,
+        "v1": 0.25
+      },
+      "description": "Worn charcoal cotton/leather jacket",
+      "appliesTo": "character torso and arms"
+    },
+    {
+      "id": "SKIN_HAIR",
+      "x": 512,
+      "y": 768,
+      "width": 256,
+      "height": 256,
+      "uvRect": {
+        "u0": 0.5,
+        "v0": 0,
+        "u1": 0.75,
+        "v1": 0.25
+      },
+      "description": "Muddy warm gray skin and dark hair variation",
+      "appliesTo": "head and hands"
+    },
+    {
+      "id": "DETAILS",
+      "x": 768,
+      "y": 768,
+      "width": 256,
+      "height": 256,
+      "uvRect": {
+        "u0": 0.75,
+        "v0": 0,
+        "u1": 1,
+        "v1": 0.25
+      },
+      "description": "Worn zinc, metal edges, aged hardware",
+      "appliesTo": "wheel hubs, post clips, door details"
+    }
+  ]
+}
