@@ -21,3 +21,14 @@
    min-height:39px}
  #debug-feedback{right:16px;bottom:calc(260px + env(safe-area-inset-bottom))}
 }
+
+#debug-visibility{position:fixed;z-index:8;right:clamp(12px,3vw,45px);
+  bottom:68px;min-height:37px;padding:9px 12px;
+  border:1px solid #a2bfd0;background:#202d38ef;color:#f4f6f9;
+  font:700 10px "Courier New",monospace;letter-spacing:.04em;cursor:pointer;
+  border-radius:3px;box-shadow:0 3px 10px #0009}
+#debug-visibility[aria-pressed="true"]{border:2px solid #f4e2b7;color:#fff6ce;background:#31404a}
+@media(max-width:800px),(pointer:coarse){
+  #debug-visibility{right:157px;bottom:calc(213px + env(safe-area-inset-bottom));
+    min-height:39px}
+}
