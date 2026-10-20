@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+<title>PSX Scene UV Texture Atlas Draft: 16 tiles 256 by 256</title>
+<desc>Paint one consistent 1024 x 1024 image in this exact four-by-four arrangement. The labels are guides; final painted atlas must not include labels.</desc>
+<rect width="1024" height="1024" fill="#131917"/>
+<g transform="translate(0 0)">
+<rect x="0" y="0" width="256" height="256" fill="#40564c" stroke="#ecefce" stroke-width="2"/>
+<path d="M0 0L256 256M256 0L0 256" stroke="#eaeec0" stroke-opacity=".12"/>
+<rect x="5" y="5" width="246" height="246" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1" stroke-dasharray="6 6"/>
+<rect x="12" y="184" width="232" height="59" rx="3" fill="#0c1214" opacity=".92"/>
+<text x="19" y="204" fill="#d5e4d2" font-size="12" font-family="monospace" font-weight="bold">WALL_GREEN</text>
+<text x="19" y="224" fill="#aaa" font-size="11" font-family="monospace">[0, 0] / 256x256</text>
+</g>
+<g transform="translate(256 0)">
+<rect x="0" y="0" width="256" height="256" fill="#625d4f" stroke="#ecefce" stroke-width="2"/>
+<path d="M0 0L256 256M256 0L0 256" stroke="#eaeec0" stroke-opacity=".12"/>
+<rect x="5" y="5" width="246" height="246" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1" stroke-dasharray="6 6"/>
+<rect x="12" y="184" width="232" height="59" rx="3" fill="#0c1214" opacity=".92"/>
+<text x="19" y="204" fill="#d5e4d2" font-size="12" font-family="monospace" font-weight="bold">WALL_LOWER</text>
+<text x="19" y="224" fill="#aaa" font-size="11" font-family="monospace">[256, 0] / 256x256</text>
+</g>
+<g transform="translate(512 0)">
+<rect x="0" y="0" width="256" height="256" fill="#555b54" stroke="#ecefce" stroke-width="2"/>
+<path d="M0 0L256 256M256 0L0 256" stroke="#eaeec0" stroke-opacity=".12"/>
+<rect x="5" y="5" width="246" height="246" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1" stroke-dasharray="6 6"/>
+<rect x="12" y="184" width="232" height="59" rx="3" fill="#0c1214" opacity=".92"/>
+<text x="19" y="204" fill="#d5e4d2" font-size="12" font-family="monospace" font-weight="bold">ASPHALT</text>
+<text x="19" y="224" fill="#aaa" font-size="11" font-family="monospace">[512, 0] / 256x256</text>
+</g>
+<g transform="translate(768 0)">
+<rect x="0" y="0" width="256" height="256" fill="#8a8d7e" stroke="#ecefce" stroke-width="2"/>
+<path d="M0 0L256 256M256 0L0 256" stroke="#eaeec0" stroke-opacity=".12"/>
+<rect x="5" y="5" width="246" height="246" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1" stroke-dasharray="6 6"/>
+<rect x="12" y="184" width="232" height="59" rx="3" fill="#0c1214" opacity=".92"/>
+<text x="19" y="204" fill="#d5e4d2" font-size="12" font-family="monospace" font-weight="bold">SIDEWALK</text>
+<text x="19" y="224" fill="#aaa" font-size="11" font-family="monospace">[768, 0] / 256x256</text>
+</g>
+<g transform="translate(0 256)">
+<rect x="0" y="0" width="256" height="256" fill="#777c70" stroke="#ecefce" stroke-width="2"/>
+<path d="M0 0L256 256M256 0L0 256" stroke="#eaeec0" stroke-opacity=".12"/>
+<rect x="5" y="5" width="246" height="246" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1" stroke-dasharray="6 6"/>
+<rect x="12" y="184" width="232" height="59" rx="3" fill="#0c1214" opacity=".92"/>
+<text x="19" y="204" fill="#d5e4d2" font-size="12" font-family="monospace" font-weight="bold">DOOR</text>
+<text x="19" y="224" fill="#aaa" font-size="11" font-family="monospace">[0, 256] / 256x256</text>
+</g>
+<g transform="translate(256 256)">
+<rect x="0" y="0" width="256" height="256" fill="#3c493f" stroke="#ecefce" stroke-width="2"/>
+<path d="M0 0L256 256M256 0L0 256" stroke="#eaeec0" stroke-opacity=".12"/>
+<rect x="5" y="5" width="246" height="246" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1" stroke-dasharray="6 6"/>
+<rect x="12" y="184" width="232" height="59" rx="3" fill="#0c1214" opacity=".92"/>
+<text x="19" y="204" fill="#d5e4d2" font-size="12" font-family="monospace" font-weight="bold">DOOR_FRAME</text>
+<text x="19" y="224" fill="#aaa" font-size="11" font-family="monospace">[256, 256] / 256x256</text>
+</g>
+<g transform="translate(512 256)">
+<rect x="0" y="0" width="256" height="256" fill="#4e5555" stroke="#ecefce" stroke-width="2"/>
+<path d="M0 0L256 256M256 0L0 256" stroke="#eaeec0" stroke-opacity=".12"/>
+<rect x="5" y="5" width="246" height="246" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1" stroke-dasharray="6 6"/>
+<rect x="12" y="184" width="232" height="59" rx="3" fill="#0c1214" opacity=".92"/>
+<text x="19" y="204" fill="#d5e4d2" font-size="12" font-family="monospace" font-weight="bold">CAR_METAL</text>
+<text x="19" y="224" fill="#aaa" font-size="11" font-family="monospace">[512, 256] / 256x256</text>
+</g>
+<g transform="translate(768 256)">
+<rect x="0" y="0" width="256" height="256" fill="#252f32" stroke="#ecefce" stroke-width="2"/>
+<path d="M0 0L256 256M256 0L0 256" stroke="#eaeec0" stroke-opacity=".12"/>
+<rect x="5" y="5" width="246" height="246" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1" stroke-dasharray="6 6"/>
+<rect x="12" y="184" width="232" height="59" rx="3" fill="#0c1214" opacity=".92"/>
+<text x="19" y="204" fill="#d5e4d2" font-size="12" font-family="monospace" font-weight="bold">CAR_GLASS</text>
+<text x="19" y="224" fill="#aaa" font-size="11" font-family="monospace">[768, 256] / 256x256</text>
+</g>
+<g transform="translate(0 512)">
+<rect x="0" y="0" width="256" height="256" fill="#293e2a" stroke="#ecefce" stroke-width="2"/>
+<path d="M0 0L256 256M256 0L0 256" stroke="#eaeec0" stroke-opacity=".12"/>
+<rect x="5" y="5" width="246" height="246" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1" stroke-dasharray="6 6"/>
+<rect x="12" y="184" width="232" height="59" rx="3" fill="#0c1214" opacity=".92"/>
+<text x="19" y="204" fill="#d5e4d2" font-size="12" font-family="monospace" font-weight="bold">HEDGE</text>
+<text x="19" y="224" fill="#aaa" font-size="11" font-family="monospace">[0, 512] / 256x256</text>
+</g>
+<g transform="translate(256 512)">
+<rect x="0" y="0" width="256" height="256" fill="#554e48" stroke="#ecefce" stroke-width="2"/>
+<path d="M0 0L256 256M256 0L0 256" stroke="#eaeec0" stroke-opacity=".12"/>
+<rect x="5" y="5" width="246" height="246" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1" stroke-dasharray="6 6"/>
+<rect x="12" y="184" width="232" height="59" rx="3" fill="#0c1214" opacity=".92"/>
+<text x="19" y="204" fill="#d5e4d2" font-size="12" font-family="monospace" font-weight="bold">CEILING</text>
+<text x="19" y="224" fill="#aaa" font-size="11" font-family="monospace">[256, 512] / 256x256</text>
+</g>
+<g transform="translate(512 512)">
+<rect x="0" y="0" width="256" height="256" fill="#151d1b" stroke="#ecefce" stroke-width="2"/>
+<path d="M0 0L256 256M256 0L0 256" stroke="#eaeec0" stroke-opacity=".12"/>
+<rect x="5" y="5" width="246" height="246" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1" stroke-dasharray="6 6"/>
+<rect x="12" y="184" width="232" height="59" rx="3" fill="#0c1214" opacity=".92"/>
+<text x="19" y="204" fill="#d5e4d2" font-size="12" font-family="monospace" font-weight="bold">BLACK_GLASS</text>
+<text x="19" y="224" fill="#aaa" font-size="11" font-family="monospace">[512, 512] / 256x256</text>
+</g>
+<g transform="translate(768 512)">
+<rect x="0" y="0" width="256" height="256" fill="#282e2b" stroke="#ecefce" stroke-width="2"/>
+<path d="M0 0L256 256M256 0L0 256" stroke="#eaeec0" stroke-opacity=".12"/>
+<rect x="5" y="5" width="246" height="246" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1" stroke-dasharray="6 6"/>
+<rect x="12" y="184" width="232" height="59" rx="3" fill="#0c1214" opacity=".92"/>
+<text x="19" y="204" fill="#d5e4d2" font-size="12" font-family="monospace" font-weight="bold">ROOF</text>
+<text x="19" y="224" fill="#aaa" font-size="11" font-family="monospace">[768, 512] / 256x256</text>
+</g>
+<g transform="translate(0 768)">
+<rect x="0" y="0" width="256" height="256" fill="#313940" stroke="#ecefce" stroke-width="2"/>
+<path d="M0 0L256 256M256 0L0 256" stroke="#eaeec0" stroke-opacity=".12"/>
+<rect x="5" y="5" width="246" height="246" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1" stroke-dasharray="6 6"/>
+<rect x="12" y="184" width="232" height="59" rx="3" fill="#0c1214" opacity=".92"/>
+<text x="19" y="204" fill="#d5e4d2" font-size="12" font-family="monospace" font-weight="bold">JEANS</text>
+<text x="19" y="224" fill="#aaa" font-size="11" font-family="monospace">[0, 768] / 256x256</text>
+</g>
+<g transform="translate(256 768)">
+<rect x="0" y="0" width="256" height="256" fill="#27272a" stroke="#ecefce" stroke-width="2"/>
+<path d="M0 0L256 256M256 0L0 256" stroke="#eaeec0" stroke-opacity=".12"/>
+<rect x="5" y="5" width="246" height="246" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1" stroke-dasharray="6 6"/>
+<rect x="12" y="184" width="232" height="59" rx="3" fill="#0c1214" opacity=".92"/>
+<text x="19" y="204" fill="#d5e4d2" font-size="12" font-family="monospace" font-weight="bold">JACKET</text>
+<text x="19" y="224" fill="#aaa" font-size="11" font-family="monospace">[256, 768] / 256x256</text>
+</g>
+<g transform="translate(512 768)">
+<rect x="0" y="0" width="256" height="256" fill="#847368" stroke="#ecefce" stroke-width="2"/>
+<path d="M0 0L256 256M256 0L0 256" stroke="#eaeec0" stroke-opacity=".12"/>
+<rect x="5" y="5" width="246" height="246" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1" stroke-dasharray="6 6"/>
+<rect x="12" y="184" width="232" height="59" rx="3" fill="#0c1214" opacity=".92"/>
+<text x="19" y="204" fill="#d5e4d2" font-size="12" font-family="monospace" font-weight="bold">SKIN_HAIR</text>
+<text x="19" y="224" fill="#aaa" font-size="11" font-family="monospace">[512, 768] / 256x256</text>
+</g>
+<g transform="translate(768 768)">
+<rect x="0" y="0" width="256" height="256" fill="#727969" stroke="#ecefce" stroke-width="2"/>
+<path d="M0 0L256 256M256 0L0 256" stroke="#eaeec0" stroke-opacity=".12"/>
+<rect x="5" y="5" width="246" height="246" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1" stroke-dasharray="6 6"/>
+<rect x="12" y="184" width="232" height="59" rx="3" fill="#0c1214" opacity=".92"/>
+<text x="19" y="204" fill="#d5e4d2" font-size="12" font-family="monospace" font-weight="bold">DETAILS</text>
+<text x="19" y="224" fill="#aaa" font-size="11" font-family="monospace">[768, 768] / 256x256</text>
+</g>
+</svg>
