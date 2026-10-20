@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="theme-color" content="#0b0f10">
   <title>HOLLOW STREET — PSX Graphics Lab</title>
-  <link rel="stylesheet" href="./style.css?v=4">
+  <link rel="stylesheet" href="./style.css?v=5-20261020">
 </head>
 <body>
   <canvas id="game" aria-label="Interactive retro horror 3D scene"></canvas>
   <div id="vhs" aria-hidden="true"></div>
   <div class="header">
-    <div class="eyebrow">PSX GRAPHICS LAB // SCENE 001</div>
+    <div class="eyebrow">PSX GRAPHICS LAB // SCENE 001 · BUILD 5</div>
     <h1>HOLLOW <span>STREET</span></h1>
     <div class="subline">A FORGOTTEN PLACE · 23:47</div>
   </div>
@@ -37,11 +37,14 @@
       <label>Fog density <output id="out-fog">75%</output>
         <input id="fog" type="range" min="0" max="150" step="5" value="75">
       </label>
+      <label>Scene brightness <output id="out-exposure">170%</output>
+        <input id="exposure" type="range" min="80" max="260" step="10" value="170">
+      </label>
       <label>Color dithering <output id="out-dither">70%</output>
         <input id="dither" type="range" min="0" max="100" step="5" value="70">
       </label>
-      <label>Film grain <output id="out-grain">45%</output>
-        <input id="grain" type="range" min="0" max="100" step="5" value="45">
+      <label>Film grain <output id="out-grain">35%</output>
+        <input id="grain" type="range" min="0" max="100" step="5" value="35">
       </label>
       <div class="panel-buttons">
         <button id="light" title="Toggle flashlight">FLASHLIGHT: ON</button>
@@ -63,7 +66,7 @@
     </div>
   </div>
   <div id="error" role="alert" hidden></div>
-  <script src="./debug.js?v=4"></script>
-  <script type="module" src="./game.js?v=4"></script>
+  <script src="./debug.js?v=5-20261020"></script>
+  <script type="module" src="./game.js?v=5-20261020"></script>
 </body>
 </html>
