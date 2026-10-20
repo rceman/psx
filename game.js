@@ -6,12 +6,18 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.m
  * The authored camera is calibrated for the reference's 1206:847 composition.
  */
 const $ = id => document.getElementById(id);
-const setting = {res:240,snap:1,affine:.75,fog:.75,dither:.7,grain:.45};
+// Exposure persists between visits; no scene/reference images are stored.
+let savedExposure=1.7;
+try {
+  const stored=Number(localStorage.getItem('psx-scene-exposure'));
+  if(Number.isFinite(stored)&&stored>=0.8&&stored<=2.6)savedExposure=stored;
+} catch(_){ /* storage can be disabled in private browsing */ }
+const setting = {res:240,snap:1,affine:.75,fog:.75,dither:.7,grain:.35,exposure:savedExposure};
 const dims = new THREE.Vector2(320,240);
 const snapPower={value:1}, affinePower={value:.75};
-const fogColor = new THREE.Color('#19231f');
+const fogColor = new THREE.Color('#2b352f');
 const scene = new THREE.Scene(); scene.background=fogColor;
-scene.fog = new THREE.FogExp2(fogColor, .054);
+scene.fog = new THREE.FogExp2(fogColor, .05*setting.fog);
 // Freeze camera composition to the 1206x847 reference image at any viewport size.
 const REFERENCE_ASPECT=1206/847;
 const camera=new THREE.PerspectiveCamera(48,REFERENCE_ASPECT,.08,90);
@@ -22,7 +28,12 @@ renderer.toneMapping=THREE.NoToneMapping;
 const clock=new THREE.Clock(), origin=new THREE.Vector3(.7,2.7,8.9), viewPoint=new THREE.Vector3(.0,1.65,-3.15);
 camera.position.copy(origin); camera.lookAt(viewPoint);
 const world=new THREE.Group();scene.add(world);
-const AMBIENT=new THREE.HemisphereLight(0x8ba497,0x232821,1.05);scene.add(AMBIENT);
+// PS1 nighttime fill keeps dark recesses while making architecture readable on mobile.
+const AMBIENT=new THREE.HemisphereLight(0xb7c5b3,0x4a4f43,1.75);scene.add(AMBIENT);
+const ambientFill=new THREE.AmbientLight(0xbac3ae,.65);scene.add(ambientFill);
+const keyFill=new THREE.DirectionalLight(0xbcc8ba,.9);
+keyFill.position.set(1.5,8,4.5);
+scene.add(keyFill);
 const porchLight=new THREE.PointLight(0xb7b59a,7,10,2);porchLight.position.set(2.05,3.52,-2.4);scene.add(porchLight);
 const alleyLight=new THREE.PointLight(0x617a73,3.0,14,2);alleyLight.position.set(-3,3.7,-2);scene.add(alleyLight);
 
@@ -301,13 +312,13 @@ const postScene=new THREE.Scene(),postCam=new THREE.OrthographicCamera(-1,1,1,-1
 const post=new THREE.ShaderMaterial({
  uniforms:{
   sceneTex:{value:null},screenSize:{value:dims},time:{value:0},
-  dither:{value:.7},grain:{value:.45}
+  dither:{value:.7},grain:{value:.35},exposure:{value:setting.exposure}
  },
  depthTest:false,depthWrite:false,
  vertexShader:'varying vec2 uv0;void main(){uv0=uv;gl_Position=vec4(position.xy,0.0,1.0);}',
  fragmentShader:[
  'precision highp float;uniform sampler2D sceneTex;uniform vec2 screenSize;',
- 'uniform float time,dither,grain;varying vec2 uv0;',
+ 'uniform float time,dither,grain,exposure;varying vec2 uv0;',
  'float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453123);}',
  'float bayer(vec2 p){p=mod(floor(p),4.0);float x=p.x,y=p.y;',
  'if(y<1.0){if(x<1.0)return 0.;if(x<2.)return 8.;if(x<3.)return 2.;return 10.;}',
@@ -315,6 +326,8 @@ const post=new THREE.ShaderMaterial({
  'if(y<3.0){if(x<1.0)return 3.;if(x<2.)return 11.;if(x<3.)return 1.;return 9.;}',
  'if(x<1.0)return 15.;if(x<2.)return 7.;if(x<3.)return 13.;return 5.;}',
  'void main(){vec3 c=texture2D(sceneTex,uv0).rgb;vec2 pix=floor(uv0*screenSize);',
+ // Exposure & midtone lift are applied after the scene render; textures stay unchanged.
+ 'c=pow(vec3(1.0)-exp(-max(c,vec3(0.0))*exposure),vec3(.87));',
  'float n=(hash(pix+floor(time*16.)*vec2(19.,23.))-.5)*grain*.16;',
  'float b=(bayer(pix)/16.-.5)*dither;',
  'c=clamp(c+n,0.,1.);c=floor(clamp(c*31.+b+.5,0.,31.))/31.;',
@@ -378,7 +391,7 @@ function setVisibilityTest(enabled){
   });
  }else{
   scene.fog=savedFog;
-  scene.fog.density=.072*setting.fog;
+  scene.fog.density=.05*setting.fog;
   scene.background=savedBackground;
   for(const [obj,material] of originalMaterialByMesh)obj.material=material;
   originalMaterialByMesh.clear();
@@ -409,17 +422,23 @@ $('panel-toggle').addEventListener('click',()=>{
  $('panel-toggle').setAttribute('aria-expanded',String(!collapsed));
  $('toggle-icon').textContent=collapsed?'+':'−';
 });
-for(const [id,field,scale,unit] of [['res','res',1,'p'],['snap','snap',.01,'%'],['affine','affine',.01,'%'],['fog','fog',.01,'%'],['dither','dither',.01,'%'],['grain','grain',.01,'%']]){
+for(const [id,field,scale,unit] of [['res','res',1,'p'],['snap','snap',.01,'%'],['affine','affine',.01,'%'],['fog','fog',.01,'%'],['exposure','exposure',.01,'%'],['dither','dither',.01,'%'],['grain','grain',.01,'%']]){
  const control=$(id),out=$('out-'+id);
+ if(id==='exposure'){control.value=String(Math.round(setting.exposure*100));out.textContent=control.value+'%';}
  control.addEventListener('input',()=>{
   const num=Number(control.value);setting[field]=num*scale;
   out.textContent=num+unit;
   if(id==='res')resize();
   if(id==='snap')snapPower.value=setting.snap;
   if(id==='affine')affinePower.value=setting.affine;
-  if(id==='fog' && scene.fog)scene.fog.density=.072*setting.fog;
+  if(id==='fog' && scene.fog)scene.fog.density=.05*setting.fog;
   if(id==='dither')post.uniforms.dither.value=setting.dither;
   if(id==='grain')post.uniforms.grain.value=setting.grain;
+  if(id==='exposure'){
+   post.uniforms.exposure.value=setting.exposure;
+   try{localStorage.setItem('psx-scene-exposure',String(setting.exposure));}catch(_){}
+   console.info('Scene exposure',setting.exposure);
+  }
  });
 }
 // Reference overlay tools. The screenshot stays on the user's device.
