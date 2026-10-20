@@ -12,7 +12,9 @@ const snapPower={value:1}, affinePower={value:.75};
 const fogColor = new THREE.Color('#19231f');
 const scene = new THREE.Scene(); scene.background=fogColor;
 scene.fog = new THREE.FogExp2(fogColor, .054);
-const camera=new THREE.PerspectiveCamera(48,1,.08,90);
+// Freeze camera composition to the 1206x847 reference image at any viewport size.
+const REFERENCE_ASPECT=1206/847;
+const camera=new THREE.PerspectiveCamera(48,REFERENCE_ASPECT,.08,90);
 const renderer=new THREE.WebGLRenderer({canvas:$('game'),antialias:false,alpha:false,powerPreference:'high-performance'});
 renderer.setPixelRatio(1);
 renderer.outputColorSpace=THREE.SRGBColorSpace;
@@ -322,20 +324,63 @@ const post=new THREE.ShaderMaterial({
 });
 postScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2),post));
 let target;
+let presentRect={x:0,y:0,width:0,height:0};
+let scenePass={calls:0,triangles:0,points:0,lines:0};
 function resize(){
- let w=Math.max(1,window.innerWidth),h=Math.max(1,window.innerHeight),rh=setting.res,rw=Math.max(1,Math.round(rh*w/h));
+ const w=Math.max(1,window.innerWidth),h=Math.max(1,window.innerHeight);
+ const rh=setting.res,rw=Math.max(1,Math.round(rh*REFERENCE_ASPECT));
  dims.set(rw,rh);
  target?.dispose();target=new THREE.WebGLRenderTarget(rw,rh,{
   minFilter:THREE.NearestFilter,magFilter:THREE.NearestFilter,depthBuffer:true,stencilBuffer:false
  });
  target.texture.colorSpace=THREE.SRGBColorSpace;
- renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();
+ renderer.setSize(w,h,false);
+ camera.aspect=REFERENCE_ASPECT;
+ camera.updateProjectionMatrix();
+ const scale=Math.min(w/rw,h/rh);
+ const viewW=Math.min(w,Math.max(1,Math.round(rw*scale)));
+ const viewH=Math.min(h,Math.max(1,Math.round(rh*scale)));
+ presentRect={
+  x:Math.floor((w-viewW)/2),y:Math.floor((h-viewH)/2),
+  width:viewW,height:viewH
+ };
  post.uniforms.sceneTex.value=target.texture;
+ console.info('Reference framing', {aspect:REFERENCE_ASPECT.toFixed(3),renderTarget:[rw,rh],viewport:[w,h],presentation:presentRect});
 }
 window.addEventListener('resize',resize);
 resize();
+const savedFog=scene.fog, savedBackground=scene.background;
+const originalMaterialByMesh=new Map();
+let diagnosticMode=false;
+function setVisibilityTest(enabled){
+ diagnosticMode=!!enabled;
+ if(diagnosticMode){
+  scene.fog=null;
+  scene.background=new THREE.Color(0x455360);
+  const uniqueMaterials=new Map();
+  const diagnosticPalette=[0xc6b380,0x638fa8,0xb8a8cb,0xc7c9c0,0x829daf,0xe2d5a0];
+  scene.traverse(obj=>{
+   if(!obj.isMesh)return;
+   originalMaterialByMesh.set(obj,obj.material);
+   const key=Array.isArray(obj.material)?obj.material[0]:obj.material;
+   if(!uniqueMaterials.has(key)){
+    const c=diagnosticPalette[uniqueMaterials.size%diagnosticPalette.length];
+    uniqueMaterials.set(key,new THREE.MeshBasicMaterial({color:c,side:THREE.DoubleSide}));
+   }
+   obj.material=uniqueMaterials.get(key);
+  });
+ }else{
+  scene.fog=savedFog;
+  scene.background=savedBackground;
+  for(const [obj,material] of originalMaterialByMesh)obj.material=material;
+  originalMaterialByMesh.clear();
+ }
+ console.info('Visibility test', diagnosticMode?'ON: fog off, basic high-visibility material':'OFF: original PSX materials restored');
+}
 window.__psxDebug?.setRuntime({
- renderer, scene, camera, settings:setting, target:()=>target
+ renderer, scene, camera, settings:setting, target:()=>target,
+ scenePass:()=>scenePass,presentation:()=>presentRect,
+ setVisibilityTest
 });
 let debugFrame=0;
 const key=new Set();let follow=false,turn=0,dragging=false,lastX=0;
@@ -501,9 +546,21 @@ function animate(){
  post.uniforms.time.value=elapsed;
  renderer.setRenderTarget(target);
  renderer.render(scene,camera);
+ scenePass={
+  calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,
+  points:renderer.info.render.points,lines:renderer.info.render.lines
+ };
  renderer.setRenderTarget(null);
+ renderer.setViewport(0,0,window.innerWidth,window.innerHeight);
+ renderer.setScissorTest(false);
+ renderer.clear(true,true,true);
+ renderer.setViewport(presentRect.x,presentRect.y,presentRect.width,presentRect.height);
  renderer.render(postScene,postCam);
+ renderer.setViewport(0,0,window.innerWidth,window.innerHeight);
  debugFrame++;
+ if (debugFrame === 12 || debugFrame % 420 === 0){
+   window.__psxDebug?.log('scene-pass',scenePass);
+ }
  if (debugFrame === 12 || debugFrame % 420 === 0) {
    window.__psxDebug?.probe(renderer, target);
  }
