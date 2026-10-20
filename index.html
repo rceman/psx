@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#0b0f10">
+  <title>HOLLOW STREET — PSX Graphics Lab</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <canvas id="game" aria-label="Interactive retro horror 3D scene"></canvas>
+  <div id="vhs" aria-hidden="true"></div>
+  <div class="header">
+    <div class="eyebrow">PSX GRAPHICS LAB // SCENE 001</div>
+    <h1>HOLLOW <span>STREET</span></h1>
+    <div class="subline">A FORGOTTEN PLACE · 23:47</div>
+  </div>
+  <div id="status" class="status"><span class="status-dot"></span> LOADING SCENE...</div>
+  <div class="bottom-ui">
+    <div class="controls-hint"><strong>WASD / ARROWS</strong> MOVE &nbsp; <strong>SHIFT</strong> RUN &nbsp; <strong>F</strong> FLASHLIGHT &nbsp; <strong>DRAG</strong> CAMERA &nbsp; <strong>R</strong> RESET</div>
+    <div class="credits">ORIGINAL PROCEDURAL ASSETS · THREE.JS / WEBGL · NO SILENT HILL GAME ASSETS</div>
+  </div>
+  <div class="panel" id="panel">
+    <button id="panel-toggle" class="panel-head" aria-expanded="true" aria-controls="panel-body">
+      <span>GRAPHICS SETTINGS</span><span id="toggle-icon">−</span>
+    </button>
+    <div id="panel-body">
+      <label>Render height <output id="out-res">240p</output>
+        <input id="res" type="range" min="120" max="480" step="40" value="240">
+      </label>
+      <label>Vertex wobble <output id="out-snap">100%</output>
+        <input id="snap" type="range" min="0" max="100" step="5" value="100">
+      </label>
+      <label>Affine UV warp <output id="out-affine">75%</output>
+        <input id="affine" type="range" min="0" max="100" step="5" value="75">
+      </label>
+      <label>Fog density <output id="out-fog">75%</output>
+        <input id="fog" type="range" min="0" max="150" step="5" value="75">
+      </label>
+      <label>Color dithering <output id="out-dither">70%</output>
+        <input id="dither" type="range" min="0" max="100" step="5" value="70">
+      </label>
+      <label>Film grain <output id="out-grain">45%</output>
+        <input id="grain" type="range" min="0" max="100" step="5" value="45">
+      </label>
+      <div class="panel-buttons">
+        <button id="light" title="Toggle flashlight">FLASHLIGHT: ON</button>
+        <button id="reset" title="Reset player position">RESET</button>
+      </div>
+      <div class="panel-foot">Adjust the effects live to compare PS1 and modern rendering.</div>
+    </div>
+  </div>
+  <div id="mobile-controls">
+    <div class="dpad">
+      <button data-key="KeyW" class="up" aria-label="Move forward">▲</button>
+      <button data-key="KeyA" class="left" aria-label="Move left">◀</button>
+      <button data-key="KeyS" class="down" aria-label="Move backward">▼</button>
+      <button data-key="KeyD" class="right" aria-label="Move right">▶</button>
+    </div>
+    <div class="action-buttons">
+      <button id="mobile-run">RUN</button>
+      <button id="mobile-light">LIGHT</button>
+    </div>
+  </div>
+  <div id="error" role="alert" hidden></div>
+  <script type="module" src="./game.js"></script>
+</body>
+</html>
