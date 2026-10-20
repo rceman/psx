@@ -345,6 +345,13 @@ function resize(){
   width:viewW,height:viewH
  };
  post.uniforms.sceneTex.value=target.texture;
+ const overlay=document.getElementById('psx-reference-overlay');
+ if(overlay){
+  overlay.style.left=presentRect.x+'px';
+  overlay.style.top=presentRect.y+'px';
+  overlay.style.width=presentRect.width+'px';
+  overlay.style.height=presentRect.height+'px';
+ }
  console.info('Reference framing', {aspect:REFERENCE_ASPECT.toFixed(3),renderTarget:[rw,rh],viewport:[w,h],presentation:presentRect});
 }
 window.addEventListener('resize',resize);
@@ -426,9 +433,14 @@ choose.type='file';choose.accept='image/*';choose.setAttribute('aria-label','Loa
 choose.style.cssText='font:10px monospace;width:100%;max-width:100%;margin:5px 0 9px;';
 compareControls.append(choose);
 const reference=document.createElement('img');
+reference.id='psx-reference-overlay';
 reference.alt='Local reference for scene alignment';
-reference.style.cssText='pointer-events:none;position:fixed;inset:0;width:100%;height:100%;object-fit:fill;opacity:0;z-index:1;';
+reference.style.cssText='pointer-events:none;position:fixed;object-fit:fill;opacity:0;z-index:1;';
 document.body.append(reference);
+Object.assign(reference.style,{
+ left:presentRect.x+'px',top:presentRect.y+'px',
+ width:presentRect.width+'px',height:presentRect.height+'px'
+});
 let lastObjectURL=null;
 choose.addEventListener('change',()=>{
  const f=choose.files?.[0];if(!f)return;
