@@ -104,12 +104,15 @@ artistAtlas.onload=()=>{
   for(let i=0;i<TILE.length;i++){
     const [name]=TILE[i],t=tileMap[name],cx=t.image.getContext('2d');
     cx.clearRect(0,0,256,256);
-    cx.drawImage(artistAtlas,(i%4)*256,Math.floor(i/4)*256,256,256,0,0,256,256);
+    cx.imageSmoothingEnabled=false;
+    const sw=artistAtlas.naturalWidth/4,sh=artistAtlas.naturalHeight/4;
+    cx.drawImage(artistAtlas,(i%4)*sw,Math.floor(i/4)*sh,sw,sh,0,0,256,256);
     t.needsUpdate=true;
   }
   console.info('Custom painted texture atlas loaded: assets/atlas.png');
 };
 artistAtlas.src='./assets/atlas.png';
+artistAtlas.onerror=()=>console.warn('Artist atlas not available; using procedural fallback.');
 
 // Custom shader: snap projected vertices to virtual raster; interpolate UV affinely.
 function psx(mat){
@@ -120,7 +123,7 @@ function psx(mat){
     '#include <project_vertex>\n'+
     'vec2 p=gl_Position.xy/max(gl_Position.w,0.001);'+
     'vec2 q=(floor((p*.5+.5)*psxGrid+.5)/psxGrid)*2.0-1.0;'+
-    'gl_Position.xy=mix(gl_Position.xy,q*gl_Position.w,psxSnap);'+
+    'gl_Position.xy=mix(gl_Position.xy,q*gl_Position.w,psxSnap);\n'+
     '#ifdef USE_MAP\npsxUVW=uv*gl_Position.w;psxW=gl_Position.w;\n#endif');
   s.fragmentShader='uniform float psxAffine;\n#ifdef USE_MAP\nvarying vec2 psxUVW;varying float psxW;\n#endif\n'+s.fragmentShader;
   s.fragmentShader=s.fragmentShader.replace('#include <map_fragment>',
@@ -441,7 +444,13 @@ for(const b of document.querySelectorAll('[data-key]')){
 const runB=$('mobile-run');
 runB.addEventListener('pointerdown',e=>{e.preventDefault();runB.setPointerCapture(e.pointerId);key.add('ShiftLeft')});
 for(const ev of ['pointerup','pointercancel','lostpointercapture'])runB.addEventListener(ev,()=>key.delete('ShiftLeft'));
-$('status').innerHTML='<span class="status-dot"></span> SCENE ACTIVE // REFERENCE CAMERA';
+// Only report active after a successful render attempt.
+$('status').innerHTML='<span class="status-dot"></span> INITIALIZING GPU SCENE...';
+if (window.matchMedia('(pointer: coarse)').matches) {
+ panel.classList.add('collapsed');
+ $('panel-toggle').setAttribute('aria-expanded','false');
+ $('toggle-icon').textContent='+';
+}
 // Character starts side-on to the door, not facing the player.
 let walkT=0,elapsed=0;
 function animate(){
@@ -490,6 +499,10 @@ function animate(){
  renderer.render(scene,camera);
  renderer.setRenderTarget(null);
  renderer.render(postScene,postCam);
+ if (!window.__psxReady) {
+   window.__psxReady = true;
+   $('status').innerHTML='<span class="status-dot"></span> SCENE ACTIVE // REFERENCE CAMERA';
+ }
 }
-try{animate()}catch(e){console.error(e);$('error').hidden=false;$('error').textContent='Rendering error: '+e.message;}
+try{animate()}catch(e){console.error(e);$('status').textContent='RENDER ERROR';$('error').hidden=false;$('error').textContent='Rendering error: '+e.message;}
 window.addEventListener('unhandledrejection',e=>{$('error').hidden=false;$('error').textContent='Error: '+e.reason;});
